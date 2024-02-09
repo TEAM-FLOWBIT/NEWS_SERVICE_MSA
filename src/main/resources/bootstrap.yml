@@ -1,0 +1,8 @@
+spring:
+  cloud:
+    config:
+      uri: ${CONFIG_SERVER_URL:http://localhost:8888}
+      name: news-service # yml 파일명 써주면 된다.
+  profiles:
+    active: ${SPRING_PROFILE:dev}
+
