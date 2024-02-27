@@ -42,7 +42,6 @@ public class BoardServiceImpl implements BoardService {
     private final BoardRepository boardRepository;
     private final AwsS3Service awsS3Service;
     private final UserServiceClient userServiceClient;
-    private final BoardImageRepository boardImageRepository;
 
 
     @Override
@@ -60,7 +59,9 @@ public class BoardServiceImpl implements BoardService {
             uploadedPaths = uploadImages(createBoardRequestDto.getPictures(), memberId);
             // image 저장
             List<BoardImage> boardImageList = boardImageToEntity(uploadedPaths, savedBoard,memberId);
-            boardImageRepository.saveAll(boardImageList);
+            for (BoardImage boardImage : boardImageList) {
+                board.addBoardImage(boardImage);
+            }
         }
         return CreateBoardResponseDto.builder()
                 .board(savedBoard)
@@ -102,7 +103,7 @@ public class BoardServiceImpl implements BoardService {
             List<BoardImage> boardImages = board.getBoardImages();
             boardImages.forEach(boardImage -> awsS3Service.deleteFile(boardImage.getImage()));
             // state값 변경시킴으로써 삭제
-            board.boardDelete();
+            board.deleteBoard();
         }else {
             throw new UnAuthorizedException("삭제할 권한이 없습니다");
         }

@@ -42,7 +42,6 @@ public class BoardCommentServiceImpl implements BoardCommentService {
 
         BoardComment boardComment = createBoardCommentRequestDto.toEntity(memberInfo.getData().getId(), findBoard, createBoardCommentRequestDto.getContent());
         findBoard.addBoardComment(boardComment);
-//        boardCommentRepository.save(boardComment);
         return CreatedBoardCommentResponseDto.builder()
                 .boardComment(boardComment)
                 .memberInfoResponseDto(memberInfo.getData())

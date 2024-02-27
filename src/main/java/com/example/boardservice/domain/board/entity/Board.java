@@ -45,7 +45,7 @@ public class Board extends BaseTimeEntity {
         this.title=updateBoardRequestDto.getTitle();
         this.content=updateBoardRequestDto.getContent();
     }
-    public void boardDelete() {
+    public void deleteBoard() {
         this.deletedAt = LocalDateTime.now();
     }
 
