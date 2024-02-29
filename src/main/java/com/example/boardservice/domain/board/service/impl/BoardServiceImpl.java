@@ -7,11 +7,8 @@ import com.example.boardservice.domain.board.dto.response.ReadBoardListResponseD
 import com.example.boardservice.domain.board.dto.response.UpdateBoardResponseDto;
 import com.example.boardservice.domain.board.entity.Board;
 import com.example.boardservice.domain.board.entity.BoardImage;
-import com.example.boardservice.domain.board.entity.MemberId;
 import com.example.boardservice.domain.board.exception.error.BoardNotFoundException;
 import com.example.boardservice.domain.board.exception.error.UnAuthorizedException;
-import com.example.boardservice.domain.board.repository.BoardCommentRepository;
-import com.example.boardservice.domain.board.repository.BoardImageRepository;
 import com.example.boardservice.domain.board.repository.BoardRepository;
 import com.example.boardservice.domain.board.service.BoardService;
 import com.example.boardservice.global.aws.AwsS3Service;
