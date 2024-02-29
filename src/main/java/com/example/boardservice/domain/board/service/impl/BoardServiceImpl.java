@@ -19,7 +19,6 @@ import com.example.boardservice.global.common.CommonResDto;
 import com.example.boardservice.global.tranlator.MemberIdTranslator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.sql.Update;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;

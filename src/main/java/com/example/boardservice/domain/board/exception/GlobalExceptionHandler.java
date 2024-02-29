@@ -2,10 +2,8 @@ package com.example.boardservice.domain.board.exception;
 
 import com.example.boardservice.domain.board.exception.dto.CommonResponse;
 import com.example.boardservice.domain.board.exception.dto.ErrorResponse;
-import com.example.boardservice.domain.board.exception.error.BoardCommentNotFoundException;
-import com.example.boardservice.domain.board.exception.error.BoardNotFoundException;
-import com.example.boardservice.domain.board.exception.error.MemberIdNullOrEmptyException;
-import com.example.boardservice.domain.board.exception.error.UnAuthorizedException;
+import com.example.boardservice.domain.board.exception.error.*;
+import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +36,23 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UnAuthorizedException.class)
     public ResponseEntity<Object> handleUnAuthorizedException(UnAuthorizedException ex) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+        log.error("UnAuthorizedException :: ");
+
+        ErrorCode errorCode = ErrorCode.UnAuthorizedException;
+
+        ErrorResponse error = ErrorResponse.builder()
+                .status(errorCode.getStatus().value())
+                .message(errorCode.getMessage())
+                .code(errorCode.getCode())
+                .build();
+
+        CommonResponse response = CommonResponse.builder()
+                .success(false)
+                .error(error)
+                .build();
+
+        return new ResponseEntity<>(response, errorCode.getStatus());
+
     }
 
     /**
@@ -65,6 +79,42 @@ public class GlobalExceptionHandler {
     }
 
 
+    /**
+     * feign error
+     */
+    @ExceptionHandler(FeignException.Unauthorized.class)
+    public ResponseEntity<Object> handleFeignUnauthorizedException(FeignException.Unauthorized ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+    }
+
+    /**
+     * DuplidateLikeException
+     */
+    @ExceptionHandler(DuplicateLikeException.class)
+    protected ResponseEntity<?> handleDuplicateLikeException(DuplicateLikeException ex) {
+        log.error("DuplicateLikeException :: ");
+
+        ErrorCode errorCode = ErrorCode.DUPLIDATE_LIKE_EXCEPTION;
+
+        ErrorResponse error = ErrorResponse.builder()
+                .status(errorCode.getStatus().value())
+                .message(errorCode.getMessage())
+                .code(errorCode.getCode())
+                .build();
+
+        CommonResponse response = CommonResponse.builder()
+                .success(false)
+                .error(error)
+                .build();
+
+        return new ResponseEntity<>(response, errorCode.getStatus());
+    }
+
+
+    /**
+     *
+     * MemberId 찾지 못했을 경우
+     */
     @ExceptionHandler(MemberIdNullOrEmptyException.class)
     protected ResponseEntity<?> handleMemberIdNullOrEmptyException(MemberIdNullOrEmptyException ex) {
         log.error("MemberIdNullOrEmptyException :: ");

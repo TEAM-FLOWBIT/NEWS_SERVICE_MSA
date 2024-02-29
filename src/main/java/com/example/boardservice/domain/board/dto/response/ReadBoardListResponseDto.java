@@ -23,6 +23,7 @@ public class ReadBoardListResponseDto {
     private String content;
     private String createTime;
     private List<String> imagePath;
+    private Long boardLikeCount;
     private List<BoardListWithComment> comments=new ArrayList<>();
 
     @Builder
@@ -36,6 +37,7 @@ public class ReadBoardListResponseDto {
         this.content = board.getContent();
         this.createTime = String.valueOf(board.getCreatedAt());
         this.imagePath = board.getBoardImages().stream().map(BoardImage::getImage).collect(Collectors.toList());
+        this.boardLikeCount=board.getLike().getLikeCount();
         this.comments = board.getBoardComments().stream().map(boardComment -> new BoardListWithComment(boardComment,memberInfoByMemberIdResponseDto)).collect(Collectors.toList());
     }
 }
