@@ -27,10 +27,11 @@ public class BoardImage extends BaseTimeEntity {
     @Column(nullable = false)
     private String image;
 
-    private Long memberId;
+    @Embedded
+    private MemberId memberId;
 
     @Builder
-    public BoardImage(Long id, String image, Board board,Long memberId) {
+    public BoardImage(Long id, String image, Board board,MemberId memberId) {
         this.id = id;
         this.image = image;
         this.board = board;

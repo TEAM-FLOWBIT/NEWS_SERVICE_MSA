@@ -4,6 +4,7 @@ import com.example.boardservice.domain.board.exception.dto.CommonResponse;
 import com.example.boardservice.domain.board.exception.dto.ErrorResponse;
 import com.example.boardservice.domain.board.exception.error.BoardCommentNotFoundException;
 import com.example.boardservice.domain.board.exception.error.BoardNotFoundException;
+import com.example.boardservice.domain.board.exception.error.MemberIdNullOrEmptyException;
 import com.example.boardservice.domain.board.exception.error.UnAuthorizedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -48,6 +49,27 @@ public class GlobalExceptionHandler {
         log.error("handleBoardNotFoundException :: ");
 
         ErrorCode errorCode = ErrorCode.BOARD_NOT_FOUND_EXCEPTION;
+
+        ErrorResponse error = ErrorResponse.builder()
+                .status(errorCode.getStatus().value())
+                .message(errorCode.getMessage())
+                .code(errorCode.getCode())
+                .build();
+
+        CommonResponse response = CommonResponse.builder()
+                .success(false)
+                .error(error)
+                .build();
+
+        return new ResponseEntity<>(response, errorCode.getStatus());
+    }
+
+
+    @ExceptionHandler(MemberIdNullOrEmptyException.class)
+    protected ResponseEntity<?> handleMemberIdNullOrEmptyException(MemberIdNullOrEmptyException ex) {
+        log.error("MemberIdNullOrEmptyException :: ");
+
+        ErrorCode errorCode = ErrorCode.MemberIdNullOrEmptyException;
 
         ErrorResponse error = ErrorResponse.builder()
                 .status(errorCode.getStatus().value())

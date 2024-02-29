@@ -13,6 +13,7 @@ import com.example.boardservice.domain.board.service.BoardCommentService;
 import com.example.boardservice.global.client.UserServiceClient;
 import com.example.boardservice.global.client.dto.MemberInfoResponseDto;
 import com.example.boardservice.global.common.CommonResDto;
+import com.example.boardservice.global.tranlator.MemberIdTranslator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -37,10 +38,11 @@ public class BoardCommentServiceImpl implements BoardCommentService {
     public CreatedBoardCommentResponseDto createBoardComment(CreateBoardCommentRequestDto createBoardCommentRequestDto) {
 
         CommonResDto<MemberInfoResponseDto> memberInfo = userServiceClient.getMemberInfo();
+        Long memberId=memberInfo.getData().getId();
         Long boardId = createBoardCommentRequestDto.getBoardId();
         Board findBoard = boardRepository.findById(boardId).orElseThrow(() -> new BoardNotFoundException("게시글이 존재하지 않습니다"));
 
-        BoardComment boardComment = createBoardCommentRequestDto.toEntity(memberInfo.getData().getId(), findBoard, createBoardCommentRequestDto.getContent());
+        BoardComment boardComment = createBoardCommentRequestDto.toEntity(MemberIdTranslator.getMemberId(memberId), findBoard, createBoardCommentRequestDto.getContent());
         findBoard.addBoardComment(boardComment);
         return CreatedBoardCommentResponseDto.builder()
                 .boardComment(boardComment)

@@ -25,10 +25,11 @@ public class BoardComment extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Board board;
 
-    private Long memberId;
+    @Embedded
+    private MemberId memberId;
 
     @Builder
-    public BoardComment(Long id, String content, Board board, Long memberId) {
+    public BoardComment(Long id, String content, Board board, MemberId memberId) {
         this.id = id;
         this.content = content;
         this.board = board;

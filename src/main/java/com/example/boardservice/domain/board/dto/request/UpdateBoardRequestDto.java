@@ -1,6 +1,7 @@
 package com.example.boardservice.domain.board.dto.request;
 
 import com.example.boardservice.domain.board.entity.Board;
+import com.example.boardservice.domain.board.entity.MemberId;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,7 +20,7 @@ public class UpdateBoardRequestDto {
     private String content;
     @Column(nullable = false)
     List<MultipartFile> pictures;
-    public Board toEntity(UpdateBoardRequestDto updateBoardRequestDto, Long memberId) {
+    public Board toEntity(UpdateBoardRequestDto updateBoardRequestDto, MemberId memberId) {
         return Board.builder()
                 .content(updateBoardRequestDto.getContent())
                 .title(updateBoardRequestDto.getTitle())

@@ -7,6 +7,7 @@ import com.example.boardservice.domain.board.dto.response.ReadBoardListResponseD
 import com.example.boardservice.domain.board.dto.response.UpdateBoardResponseDto;
 import com.example.boardservice.domain.board.entity.Board;
 import com.example.boardservice.domain.board.entity.BoardImage;
+import com.example.boardservice.domain.board.entity.MemberId;
 import com.example.boardservice.domain.board.exception.error.BoardNotFoundException;
 import com.example.boardservice.domain.board.exception.error.UnAuthorizedException;
 import com.example.boardservice.domain.board.repository.BoardCommentRepository;
@@ -18,6 +19,7 @@ import com.example.boardservice.global.client.UserServiceClient;
 import com.example.boardservice.global.client.dto.MemberInfoByMemberIdResponseDto;
 import com.example.boardservice.global.client.dto.MemberInfoResponseDto;
 import com.example.boardservice.global.common.CommonResDto;
+import com.example.boardservice.global.tranlator.MemberIdTranslator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.sql.Update;
@@ -51,7 +53,8 @@ public class BoardServiceImpl implements BoardService {
         Long memberId=memberInfo.getData().getId();
         List<String> uploadedPaths = new ArrayList<>();
 
-        Board board = createBoardRequestDto.toEntity(createBoardRequestDto, memberId);
+
+        Board board = createBoardRequestDto.toEntity(createBoardRequestDto, MemberIdTranslator.getMemberId(memberId));
         Board savedBoard = boardRepository.save(board);
 
         if (createBoardRequestDto.getPictures() != null && !createBoardRequestDto.getPictures().isEmpty()) {
@@ -134,7 +137,7 @@ public class BoardServiceImpl implements BoardService {
         return uploadedPaths.stream().map(image -> BoardImage.builder()
                 .board(savedBoard)
                 .image(image)
-                .memberId(memberId)
+                .memberId(MemberIdTranslator.getMemberId(memberId))
                 .build()).collect(Collectors.toList());
     }
 
@@ -155,7 +158,7 @@ public class BoardServiceImpl implements BoardService {
         uploadedImages.forEach(image -> {
             BoardImage boardImage = BoardImage.builder()
                     .image(image)
-                    .memberId(memberId)
+                    .memberId(MemberIdTranslator.getMemberId(memberId))
                     .build();
             board.addBoardImage(boardImage);
         });

@@ -32,7 +32,8 @@ public class Board extends BaseTimeEntity {
     @Builder.Default
     private List<BoardComment> boardComments=new ArrayList<>();
 
-    private Long memberId;
+    @Embedded
+    private MemberId memberId;
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
@@ -72,5 +73,9 @@ public class Board extends BaseTimeEntity {
 
     public void deleteBoardImage(BoardImage boardImage){
         boardImage.deleteBoardImage();
+    }
+
+    public Long getMemberId(){
+        return this.memberId.getId();
     }
 }
