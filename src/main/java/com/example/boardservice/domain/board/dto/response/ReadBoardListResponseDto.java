@@ -38,7 +38,7 @@ public class ReadBoardListResponseDto {
         this.title = board.getTitle();
         this.content = board.getContent();
         this.createTime = String.valueOf(board.getCreatedAt());
-        this.updateTime= String.valueOf(board.getUpdatedAt())
+        this.updateTime= String.valueOf(board.getUpdatedAt());
         this.imagePath = board.getBoardImages().stream().map(BoardImage::getImage).collect(Collectors.toList());
         this.boardLikeCount=board.getLike().getLikeCount();
         this.boardCommentCount=board.getBoardCommentCount().getBoardCommentCount();
