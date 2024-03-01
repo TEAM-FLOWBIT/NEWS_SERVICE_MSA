@@ -30,7 +30,7 @@ public class BoardController {
 
     @GetMapping("")
     public ResponseEntity<CommonResDto<?>> boardList(BoardSearchCondition boardSearchCondition,
-                                                     @PageableDefault(size=5, sort="board_id",direction = Sort.Direction.ASC) Pageable pageable){
+                                                     Pageable pageable){
 
         Page<ReadBoardListResponseDto> result = boardService.readBoardList(pageable,boardSearchCondition);
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResDto<>(1,"글 리스트 조회 성공",result));

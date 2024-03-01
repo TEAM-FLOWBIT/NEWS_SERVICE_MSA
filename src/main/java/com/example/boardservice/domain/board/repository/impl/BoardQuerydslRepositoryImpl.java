@@ -4,13 +4,19 @@ import com.example.boardservice.domain.board.dto.BoardSearchCondition;
 import com.example.boardservice.domain.board.entity.Board;
 import com.example.boardservice.domain.board.repository.BoardQuerydslRepository;
 import com.example.boardservice.global.config.Querydsl4RepositorySupport;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -30,7 +36,7 @@ public class BoardQuerydslRepositoryImpl extends Querydsl4RepositorySupport impl
         selectFrom(board)
                 .where(searchWordExpression(boardSearchCondition.getSearchword()))
                 .offset(pageable.getOffset())
-                .orderBy(board.createdAt.desc())
+                .orderBy(getOrderSpecifier(pageable.getSort()).stream().toArray(OrderSpecifier[]::new))
                 .limit(pageable.getPageSize());
 
         JPAQuery<Long> countQuery = new JPAQueryFactory(getEntityManager())
@@ -55,5 +61,21 @@ public class BoardQuerydslRepositoryImpl extends Querydsl4RepositorySupport impl
                         .orElse(null))
                 .orElse(null);//  // 만약 조건이 없으면 null 반환
 
+    }
+
+    /**
+     * 동적 orderby
+     */
+
+    private List<OrderSpecifier> getOrderSpecifier(Sort sort){
+        List<OrderSpecifier> orders=new ArrayList<>();
+
+        sort.stream().forEach(order->{
+            Order direction = order.isAscending() ? Order.ASC : Order.DESC;
+            String property = order.getProperty();
+            PathBuilder<Board> orderByExpression = new PathBuilder<>(Board.class, "board");
+            orders.add(new OrderSpecifier(direction,orderByExpression.get(property)));
+        });
+        return orders;
     }
 }
