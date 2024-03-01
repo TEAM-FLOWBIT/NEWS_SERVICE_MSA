@@ -10,4 +10,5 @@ import lombok.*;
 public class BoardSearchCondition {
 
     private String searchword;
+    private Integer setDataForPastWeeks;
 }

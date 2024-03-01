@@ -1,6 +1,7 @@
 package com.example.boardservice.domain.board.dto.request;
 
 import com.example.boardservice.domain.board.entity.Board;
+import com.example.boardservice.domain.board.entity.BoardCommentCount;
 import com.example.boardservice.domain.board.entity.Like;
 import com.example.boardservice.domain.board.entity.MemberId;
 import lombok.*;
@@ -27,6 +28,7 @@ public class CreateBoardRequestDto {
                 .title(createBoardRequestDto.getTitle())
                 .memberId(memberId)
                 .like(new Like(0L))
+                .boardCommentCount(new BoardCommentCount(0L))
                 .build();
     }
 }

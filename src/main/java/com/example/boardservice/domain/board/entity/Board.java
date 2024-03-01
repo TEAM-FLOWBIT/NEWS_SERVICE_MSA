@@ -39,6 +39,8 @@ public class Board extends BaseTimeEntity {
 
     @Embedded
     private Like like;
+    @Embedded
+    private BoardCommentCount boardCommentCount;
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
@@ -118,6 +120,16 @@ public class Board extends BaseTimeEntity {
         this.like.minusLikeCount(likeCount);
     }
 
+
+    /**
+     * boardCommentCount 동기화
+     */
+    public void plusBoardCommentCount(Long boardCommentCount) {
+        this.boardCommentCount.plusBoardCommentCount(boardCommentCount);
+    }
+    public void minusBoardCommentCount(Long boardCommentCount) {
+        this.boardCommentCount.minusBoardCommentCount(boardCommentCount);
+    }
 
 
 

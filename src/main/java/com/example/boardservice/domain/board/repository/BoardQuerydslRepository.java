@@ -8,4 +8,6 @@ import org.springframework.data.domain.Pageable;
 public interface BoardQuerydslRepository {
 
     Page<Board> readBoardList(Pageable pageable, BoardSearchCondition boardSearchCondition);
+
+    Page<Board> readTopWeeklyLikedBoards(Pageable pageable);
 }
