@@ -26,6 +26,7 @@ public class ReadBoardListResponseDto {
     private List<String> imagePath;
     private Long boardLikeCount;
     private Long boardCommentCount;
+    private String boardCategory;
     private List<BoardListWithComment> comments=new ArrayList<>();
 
     @Builder
@@ -42,6 +43,7 @@ public class ReadBoardListResponseDto {
         this.imagePath = board.getBoardImages().stream().map(BoardImage::getImage).collect(Collectors.toList());
         this.boardLikeCount=board.getLike().getLikeCount();
         this.boardCommentCount=board.getBoardCommentCount().getBoardCommentCount();
+        this.boardCategory=board.getBoardCategory().getLabel();
         this.comments = board.getBoardComments().stream().map(boardComment -> new BoardListWithComment(boardComment,memberInfoByMemberIdResponseDto)).collect(Collectors.toList());
     }
 }

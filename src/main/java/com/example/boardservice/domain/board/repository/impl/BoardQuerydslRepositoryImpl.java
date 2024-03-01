@@ -38,7 +38,7 @@ public class BoardQuerydslRepositoryImpl extends Querydsl4RepositorySupport impl
 
         JPAQuery<Board> contentQuery = new JPAQueryFactory(getEntityManager()).
         selectFrom(board)
-                .where(searchWordExpression(boardSearchCondition.getSearchword()))
+                .where(searchWordExpression(boardSearchCondition.getSearchword()),categoryExpression(boardSearchCondition.getCategory()))
                 .offset(pageable.getOffset())
                 .orderBy(getOrderSpecifier(pageable.getSort()).stream().toArray(OrderSpecifier[]::new))
                 .limit(pageable.getPageSize());
@@ -101,6 +101,21 @@ public class BoardQuerydslRepositoryImpl extends Querydsl4RepositorySupport impl
                 .filter(word->!word.isEmpty()) // searchWord가 비어 있지 않은경우에만 map 함수
                 .map(word-> Stream.of(board.content.containsIgnoreCase(word),
                                 board.title.containsIgnoreCase(word))
+                        .reduce(BooleanExpression::or) // 위 조건들을 OR 연산으로 묶음
+                        .orElse(null))
+                .orElse(null);//  // 만약 조건이 없으면 null 반환
+
+    }
+
+    /**
+     *
+     * 해당 카테고리에 맞는 게시글
+     */
+    private BooleanExpression categoryExpression(String category) {
+
+        return Optional.ofNullable(category) //seachWord가 null이 아닌경우에 Optional로 감싸기
+                .filter(word->!word.isEmpty()) // searchWord가 비어 있지 않은경우에만 map 함수
+                .map(word-> Stream.of(board.boardCategory.stringValue().containsIgnoreCase(category))
                         .reduce(BooleanExpression::or) // 위 조건들을 OR 연산으로 묶음
                         .orElse(null))
                 .orElse(null);//  // 만약 조건이 없으면 null 반환

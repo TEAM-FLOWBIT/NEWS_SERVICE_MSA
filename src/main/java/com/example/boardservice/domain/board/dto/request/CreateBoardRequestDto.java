@@ -1,9 +1,6 @@
 package com.example.boardservice.domain.board.dto.request;
 
-import com.example.boardservice.domain.board.entity.Board;
-import com.example.boardservice.domain.board.entity.BoardCommentCount;
-import com.example.boardservice.domain.board.entity.Like;
-import com.example.boardservice.domain.board.entity.MemberId;
+import com.example.boardservice.domain.board.entity.*;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,6 +17,8 @@ public class CreateBoardRequestDto {
     private String title;
     @NotEmpty
     private String content;
+    @NotEmpty
+    private BoardCategory boardCategory;
     List<MultipartFile> pictures;
 
     public Board toEntity(CreateBoardRequestDto createBoardRequestDto, MemberId memberId) {
@@ -29,6 +28,7 @@ public class CreateBoardRequestDto {
                 .memberId(memberId)
                 .like(new Like(0L))
                 .boardCommentCount(new BoardCommentCount(0L))
+                .boardCategory(createBoardRequestDto.getBoardCategory())
                 .build();
     }
 }

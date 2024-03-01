@@ -34,6 +34,9 @@ public class Board extends BaseTimeEntity {
     @Builder.Default
     private List<BoardComment> boardComments=new ArrayList<>();
 
+    @Enumerated(EnumType.STRING)
+    private BoardCategory boardCategory;
+
     @Embedded
     private MemberId memberId;
 
