@@ -5,6 +5,7 @@ import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.Column;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
@@ -13,11 +14,11 @@ import java.util.List;
 @Getter
 @Builder
 public class CreateBoardRequestDto {
-    @NotEmpty
+    @NotEmpty(message = "제목을 입력해주세요.")
     private String title;
-    @NotEmpty
+    @NotEmpty(message = "내용을 입력해주세요.")
     private String content;
-    @NotEmpty
+    @NotEmpty(message = "카테고리를 지정해주세요.")
     private BoardCategory boardCategory;
     List<MultipartFile> pictures;
 

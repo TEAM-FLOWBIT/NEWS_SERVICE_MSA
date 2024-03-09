@@ -6,15 +6,16 @@ import com.example.boardservice.domain.board.entity.MemberId;
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CreateBoardCommentRequestDto {
-    @NotBlank
+    @NotEmpty(message = "게시글을 입력해주세요.")
     private Long boardId;
-    @NotBlank
+    @NotEmpty(message ="내용을 입력해주세요.")
     private String content;
 
 
