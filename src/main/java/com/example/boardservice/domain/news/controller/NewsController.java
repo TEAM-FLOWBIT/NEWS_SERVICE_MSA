@@ -1,11 +1,14 @@
 package com.example.boardservice.domain.news.controller;
 
-import com.example.boardservice.domain.news.dto.NewsResponseDto;
+import com.example.boardservice.domain.news.dto.NewsSearchCondition;
+import com.example.boardservice.domain.news.dto.response.NewsResponseDto;
 import com.example.boardservice.domain.news.service.NewsService;
 import com.example.boardservice.global.common.CommonResDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,11 +34,17 @@ public class NewsController {
     }
 
     @GetMapping("")
-    public ResponseEntity<CommonResDto<?>> getNews(@RequestParam String searchWord,
-                                                   @RequestParam Long display) throws Exception {
+    public ResponseEntity<CommonResDto<?>> readNewsList(NewsSearchCondition newsSearchCondition,
+                                                        Pageable pageable){
 
-        List<NewsResponseDto> result = newsService.getNewsData(searchWord, display);
-        return ResponseEntity.status(HttpStatus.OK).body(new CommonResDto<>(1,"뉴스 데이터 생성",result));
+        Page<NewsResponseDto> result =newsService.readNewsList(newsSearchCondition, pageable);
+        return ResponseEntity.status(HttpStatus.OK).body(new CommonResDto<>(1,"뉴스 데이터 읽기 성공",result));
+    }
+
+    @GetMapping("/view")
+    public ResponseEntity<CommonResDto<?>> updateNewsViewCount(@RequestParam(value="link") String link){
+        Long result = newsService.updateNewsViewCount(link);
+        return ResponseEntity.status(HttpStatus.OK).body(new CommonResDto<>(1,"뉴스 조회수 업데이트",result));
     }
 
 }

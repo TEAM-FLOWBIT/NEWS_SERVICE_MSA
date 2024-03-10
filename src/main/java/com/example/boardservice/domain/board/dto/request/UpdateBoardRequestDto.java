@@ -14,9 +14,9 @@ import java.util.List;
 @Getter
 @Builder
 public class UpdateBoardRequestDto {
-    @NotEmpty
+    @NotEmpty(message = "제목을 입력해주세요.")
     private String title;
-    @NotEmpty
+    @NotEmpty(message = "내용을 입력해주세요.")
     private String content;
     @Column(nullable = false)
     List<MultipartFile> pictures;

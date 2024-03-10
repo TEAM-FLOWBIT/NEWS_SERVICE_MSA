@@ -2,12 +2,15 @@ package com.example.boardservice.domain.board.controller;
 import com.example.boardservice.domain.board.dto.request.CreateBoardCommentRequestDto;
 import com.example.boardservice.domain.board.entity.Board;
 import com.example.boardservice.domain.board.entity.BoardComment;
+import com.example.boardservice.domain.board.entity.BoardCommentCount;
+import com.example.boardservice.domain.board.entity.MemberId;
 import com.example.boardservice.domain.board.repository.BoardCommentRepository;
 import com.example.boardservice.domain.board.repository.BoardRepository;
 import com.example.boardservice.domain.board.service.BoardService;
 import com.example.boardservice.global.client.UserServiceClient;
 import com.example.boardservice.global.client.dto.MemberInfoResponseDto;
 import com.example.boardservice.global.common.CommonResDto;
+import com.example.boardservice.global.tranlator.Translator;
 import com.example.boardservice.util.ControllerTestSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -37,12 +40,12 @@ class BoardCommentControllerTest extends ControllerTestSupport {
     @MockBean
     private UserServiceClient userServiceClient;
 
-    private static final Long initalUserMemberId=1L;
+    private static final MemberId initalUserMemberId= Translator.getMemberId(1L);
     @BeforeEach
     void setUp() {
         CommonResDto<MemberInfoResponseDto> commonResDto = new CommonResDto<>();
         commonResDto.setData(MemberInfoResponseDto.builder()
-                .id(initalUserMemberId)
+                .id(initalUserMemberId.getId())
                 .nickname("testUser")
                 .profile("/path/to/profile")
                 .email("test@example.com")
@@ -60,6 +63,7 @@ class BoardCommentControllerTest extends ControllerTestSupport {
                 .title("제목")
                 .memberId(initalUserMemberId)
                 .content("내용")
+                .boardCommentCount(new BoardCommentCount(1L))
                 .build();
         Board savedBoard = boardRepository.saveAndFlush(board);
 
@@ -90,6 +94,7 @@ class BoardCommentControllerTest extends ControllerTestSupport {
                 .title("제목")
                 .memberId(initalUserMemberId)
                 .content("내용")
+                .boardCommentCount(new BoardCommentCount(1L))
                 .build();
 
         BoardComment boardComment = BoardComment.builder()
@@ -125,7 +130,7 @@ class BoardCommentControllerTest extends ControllerTestSupport {
                 .build();
         BoardComment boardComment = BoardComment.builder()
                 .board(board)
-                .memberId(initalUserMemberId+1L) //another user
+                .memberId(new MemberId(Translator.getMemberId(1L).getId()+1L)) //another user
                 .content("댓글")
                 .build();
         boardRepository.saveAndFlush(board);

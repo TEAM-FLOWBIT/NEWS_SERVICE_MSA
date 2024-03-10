@@ -12,7 +12,7 @@ import com.example.boardservice.domain.board.service.BoardLikeService;
 import com.example.boardservice.global.client.UserServiceClient;
 import com.example.boardservice.global.client.dto.MemberInfoResponseDto;
 import com.example.boardservice.global.common.CommonResDto;
-import com.example.boardservice.global.tranlator.MemberIdTranslator;
+import com.example.boardservice.global.tranlator.Translator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,7 +36,7 @@ public class BoardLikeServiceImpl implements BoardLikeService {
         Board board = boardRepository.findById(boardId).orElseThrow(BoardNotFoundException::new);
 
         BoardLike boardLike = BoardLike.builder()
-                .memberId(MemberIdTranslator.getMemberId(memberId))
+                .memberId(Translator.getMemberId(memberId))
                 .board(board)
                 .build();
         // 이미 좋아요했는지 validationCheck
@@ -59,7 +59,7 @@ public class BoardLikeServiceImpl implements BoardLikeService {
         Board board = boardRepository.findById(boardId).orElseThrow(BoardNotFoundException::new);
 
         BoardLike boardLike = BoardLike.builder()
-                .memberId(MemberIdTranslator.getMemberId(memberId))
+                .memberId(Translator.getMemberId(memberId))
                 .board(board)
                 .build();
         // boardLike 테이블에 state 변경과 동시에 board테이블에 likecount 동기화
