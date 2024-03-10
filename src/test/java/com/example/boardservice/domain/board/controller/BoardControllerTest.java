@@ -1,13 +1,12 @@
 package com.example.boardservice.domain.board.controller;
-import com.example.boardservice.domain.board.dto.request.CreateBoardCommentRequestDto;
 import com.example.boardservice.domain.board.entity.Board;
-import com.example.boardservice.domain.board.entity.BoardComment;
 import com.example.boardservice.domain.board.repository.BoardCommentRepository;
 import com.example.boardservice.domain.board.repository.BoardRepository;
 import com.example.boardservice.domain.board.service.BoardService;
 import com.example.boardservice.global.client.UserServiceClient;
 import com.example.boardservice.global.client.dto.MemberInfoResponseDto;
 import com.example.boardservice.global.common.CommonResDto;
+import com.example.boardservice.global.tranlator.Translator;
 import com.example.boardservice.util.ControllerTestSupport;
 import com.example.boardservice.util.ImageUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,10 +20,8 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.client.HttpClientErrorException;
-
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-
 import static org.jsoup.helper.HttpConnection.MULTIPART_FORM_DATA;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -46,15 +43,14 @@ class BoardControllerTest extends ControllerTestSupport {
     private MockMvc mockMvc;
     @MockBean
     private UserServiceClient userServiceClient;
-
-    private static Long initalUserMemberId=1L;
+//    private static Long initalUserMemberId=1L;
     @BeforeEach
     void setUp() {
 
 
         CommonResDto<MemberInfoResponseDto> commonResDto = new CommonResDto<>();
         commonResDto.setData(MemberInfoResponseDto.builder()
-                .id(initalUserMemberId)
+                .id(1L)
                 .nickname("testUser")
                 .profile("/path/to/profile")
                 .email("test@example.com")
@@ -71,7 +67,7 @@ class BoardControllerTest extends ControllerTestSupport {
         // Create a mock board
         Board board = Board.builder()
                 .title("제목")
-                .memberId(1L)
+                .memberId(Translator.getMemberId(1L))
                 .content("내용")
                 .build();
         String url = "/api/v1/board";
@@ -80,6 +76,7 @@ class BoardControllerTest extends ControllerTestSupport {
                         multipart(url)
                                 .param("title","제목입니다")
                                 .param("content","내용입니다")
+                                .param("boardCategory","BITCOIN")
                                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 )
                 .andDo(print())
@@ -106,6 +103,7 @@ class BoardControllerTest extends ControllerTestSupport {
                                 .file(multiFiles.get(1))
                                 .param("title","제목입니다")
                                 .param("content","내용입니다")
+                                .param("boardCategory","BITCOIN")
                                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 )
                 .andDo(print())
@@ -121,7 +119,7 @@ class BoardControllerTest extends ControllerTestSupport {
         //given
         Board board= Board.builder()
                 .title("제목")
-                .memberId(1L)
+                .memberId(Translator.getMemberId(1L))
                 .content("내용")
                 .build();
         boardRepository.saveAndFlush(board);
@@ -160,7 +158,7 @@ class BoardControllerTest extends ControllerTestSupport {
         //given
         Board board= Board.builder()
                 .title("제목")
-                .memberId(initalUserMemberId+1L) // another user
+                .memberId(Translator.getMemberId(2L)) // another user
                 .content("내용")
                 .build();
         boardRepository.saveAndFlush(board);
@@ -173,8 +171,6 @@ class BoardControllerTest extends ControllerTestSupport {
                 .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andReturn();
-
-
     }
 
 }

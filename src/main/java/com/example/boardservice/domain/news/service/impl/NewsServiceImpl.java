@@ -1,8 +1,15 @@
 package com.example.boardservice.domain.news.service.impl;
 
-import com.example.boardservice.domain.news.dto.NewsResponseDto;
+import com.example.boardservice.domain.news.dto.NewsSearchCondition;
+import com.example.boardservice.domain.news.dto.response.NaverNewsResponseDto;
+import com.example.boardservice.domain.news.dto.response.NewsResponseDto;
+import com.example.boardservice.domain.news.entity.News;
+import com.example.boardservice.domain.news.entity.NewsViewCount;
+import com.example.boardservice.domain.news.exception.error.NotFoundNewsException;
+import com.example.boardservice.domain.news.repository.NewsRepository;
 import com.example.boardservice.domain.news.service.NewsService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -13,26 +20,37 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.core.env.Environment;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.example.boardservice.global.tranlator.Translator.getNewsViewCount;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
+@Slf4j
 public class NewsServiceImpl implements NewsService {
 
 
     private final Environment env;
+    private final NewsRepository newsRepository;
 
 
 
     @Override
-    public List<NewsResponseDto> getNewsData(String searchWord, Long display) throws Exception {
+    public List<NaverNewsResponseDto> readNaverNewsData(String searchWord, Long display) throws Exception {
 
-        ArrayList<NewsResponseDto> newsResponseDtos = new ArrayList<>();
+        ArrayList<NaverNewsResponseDto> newsResponseDtos = new ArrayList<>();
 
         String clientId = env.getProperty("X-Naver-Client-Id");
         String clientSecret = env.getProperty("X-Naver-Client-Secret");
@@ -41,12 +59,61 @@ public class NewsServiceImpl implements NewsService {
         String apiUrl = "https://openapi.naver.com/v1/search/news.json?query="+searchWord+"&display="+display+"&start=1&sort=sim";
 
         responseData = httpRequestToNaver(clientId, clientSecret, responseData, apiUrl);
-        parsingData(newsResponseDtos, responseData);
+        parsingData(newsResponseDtos, responseData,searchWord);
 
         return newsResponseDtos;
     }
 
-    private void parsingData(ArrayList<NewsResponseDto> newsResponseDtos, String responseData) throws Exception {
+    @Override
+    @Transactional
+    public void saveNewsApiData(List<NaverNewsResponseDto> newsData) {
+        for (NaverNewsResponseDto data : newsData) {
+            News news = News.builder()
+                    .originalLink(data.getOriginalLink())
+                    .tag(data.getTag())
+                    .link(data.getPreview_link())
+                    .pubDate(data.getPubDate())
+                    .title(data.getTitle())
+                    .description(data.getDescription())
+                    .img(data.getImg())
+                    .newsViewCount(new NewsViewCount(0L))
+                    .build();
+
+            // link 값이 데이터베이스에 이미 존재하는지 확인
+            News existingNews = newsRepository.findByLink(news.getLink()).orElse(null);
+            if (existingNews == null) {
+                // link 값이 존재하지 않으면 새로운 뉴스를 저장
+                newsRepository.save(news);
+            } else {
+                // link 값이 이미 존재하면 기존 뉴스의 태그를 업데이트
+                if (!existingNews.isDuplicateTag(news.getTag())) {
+                    // 기존 뉴스의 태그에 새로운 태그를 추가합니다.
+                    String updatedTags = existingNews.getTag() + "," + news.getTag();
+                    existingNews.updateTag(updatedTags);
+                    newsRepository.save(existingNews);
+                }
+            }
+        }
+    }
+
+    @Override
+    public Page<NewsResponseDto> readNewsList(NewsSearchCondition newsSearchCondition, Pageable pageable) {
+        Page<News> newsList = newsRepository.readBoardList(newsSearchCondition, pageable);
+        List<NewsResponseDto> dtoList = newsList.stream().map(NewsResponseDto::new).collect(Collectors.toList());
+
+        return new PageImpl<>(dtoList, pageable, newsList.getSize());
+    }
+
+    @Override
+    @Transactional
+    public Long updateNewsViewCount(String link) {
+        News news = newsRepository.findByLink(link).orElseThrow(NotFoundNewsException::new);
+        news.plusNewsViewCount(getNewsViewCount(news.getNewsViewCount().getNewsViewCount()).getNewsViewCount());
+        return news.getNewsViewCount().getNewsViewCount();
+    }
+
+
+    private void parsingData(ArrayList<NaverNewsResponseDto> newsResponseDtos, String responseData, String searchWord) throws Exception {
         String jsonString = responseData;
         // JSON 문자열을 JSONObject로 파싱
         JSONObject jsonObject = new JSONObject(jsonString);
@@ -62,13 +129,14 @@ public class NewsServiceImpl implements NewsService {
 
 
             JSONObject item = items.getJSONObject(i);
-            NewsResponseDto newsDto = NewsResponseDto.builder()
+            NaverNewsResponseDto newsDto = NaverNewsResponseDto.builder()
                     .title(item.getString("title"))
-                    .originalling(item.getString("originallink"))
-                    .link(item.getString("link"))
+                    .originalLink(item.getString("originallink"))
+                    .preview_link(item.getString("link"))
                     .description(item.getString("description"))
                     .pubDate(item.getString("pubDate"))
                     .img(linkPreview(item.getString("link")))
+                    .tag(searchWord)
                     .build();
             newsResponseDtos.add(newsDto);
         }

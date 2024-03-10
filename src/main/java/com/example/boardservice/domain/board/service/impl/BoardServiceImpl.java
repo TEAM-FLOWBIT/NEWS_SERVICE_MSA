@@ -16,7 +16,7 @@ import com.example.boardservice.global.client.UserServiceClient;
 import com.example.boardservice.global.client.dto.MemberInfoByMemberIdResponseDto;
 import com.example.boardservice.global.client.dto.MemberInfoResponseDto;
 import com.example.boardservice.global.common.CommonResDto;
-import com.example.boardservice.global.tranlator.MemberIdTranslator;
+import com.example.boardservice.global.tranlator.Translator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -50,7 +50,7 @@ public class BoardServiceImpl implements BoardService {
         List<String> uploadedPaths = new ArrayList<>();
 
 
-        Board board = createBoardRequestDto.toEntity(createBoardRequestDto, MemberIdTranslator.getMemberId(memberId));
+        Board board = createBoardRequestDto.toEntity(createBoardRequestDto, Translator.getMemberId(memberId));
         Board savedBoard = boardRepository.save(board);
 
         if (createBoardRequestDto.getPictures() != null && !createBoardRequestDto.getPictures().isEmpty()) {
@@ -133,7 +133,7 @@ public class BoardServiceImpl implements BoardService {
         return uploadedPaths.stream().map(image -> BoardImage.builder()
                 .board(savedBoard)
                 .image(image)
-                .memberId(MemberIdTranslator.getMemberId(memberId))
+                .memberId(Translator.getMemberId(memberId))
                 .build()).collect(Collectors.toList());
     }
 
@@ -154,7 +154,7 @@ public class BoardServiceImpl implements BoardService {
         uploadedImages.forEach(image -> {
             BoardImage boardImage = BoardImage.builder()
                     .image(image)
-                    .memberId(MemberIdTranslator.getMemberId(memberId))
+                    .memberId(Translator.getMemberId(memberId))
                     .build();
             board.addBoardImage(boardImage);
         });

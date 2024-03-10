@@ -1,4 +1,4 @@
-package com.example.boardservice.domain.news.dto;
+package com.example.boardservice.domain.news.dto.response;
 
 import lombok.*;
 
@@ -6,11 +6,12 @@ import lombok.*;
 @Getter
 @AllArgsConstructor
 @Builder
-public class NewsResponseDto {
+public class NaverNewsResponseDto {
     private String title;
-    private String link;
+    private String preview_link;
     private String pubDate;
     private String description;
-    private String originalling;
+    private String originalLink;
     private String img;
+    private String tag;
 }
