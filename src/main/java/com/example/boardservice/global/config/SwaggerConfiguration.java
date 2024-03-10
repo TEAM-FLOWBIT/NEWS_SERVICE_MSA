@@ -27,6 +27,6 @@ public class SwaggerConfiguration {
                 .addSecurityItem(new SecurityRequirement().addList("Bearer"))
                 .info(new Info().title("FLOWBIT BOARD-SERVICE")
                         .description("BOARD API")
-                        .version("v0.0.1"));
+                        .version("v1.0.0"));
     }
 }
