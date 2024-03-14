@@ -9,6 +9,11 @@ import com.example.boardservice.domain.board.dto.response.ReadBoardListResponseD
 import com.example.boardservice.domain.board.dto.response.UpdateBoardResponseDto;
 import com.example.boardservice.domain.board.service.BoardService;
 import com.example.boardservice.global.common.CommonResDto;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -28,25 +33,39 @@ public class BoardController {
 
     private final BoardService boardService;
 
+    @Operation(
+            description = "커뮤니티 리스트를 가져오는 API 페이징 가능 동저구커리 가능"
+    )
     @GetMapping("")
-    public ResponseEntity<CommonResDto<?>> boardList(BoardSearchCondition boardSearchCondition,
-                                                     Pageable pageable){
+    public ResponseEntity<CommonResDto<?>> boardList(@RequestParam(required = false) BoardSearchCondition boardSearchCondition,
+                                                     @RequestParam(required = false) Pageable pageable){
 
         Page<ReadBoardListResponseDto> result = boardService.readBoardList(pageable,boardSearchCondition);
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResDto<>(1,"글 리스트 조회 성공",result));
     }
+
+    @Operation(
+            description = "커뮤니티를 생성하는 API"
+    )
     @PostMapping("")
     public ResponseEntity<CommonResDto<?>> createBoard(@ModelAttribute CreateBoardRequestDto createBoardResquestDto){
         log.info("커뮤니티 글쓰기 API");
         CreateBoardResponseDto result = boardService.createBoard(createBoardResquestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(new CommonResDto<>(1,"글 작성완료",result));
     }
+    @Operation(
+            description = "커뮤니티 업데이트하는 API"
+    )
     @PutMapping("/{boardId}")
     public ResponseEntity<CommonResDto<?>> updateBoard(@PathVariable Long boardId,@ModelAttribute UpdateBoardRequestDto updateBoardRequestDto){
         log.info("커뮤니티 업데이트 API");
         UpdateBoardResponseDto result = boardService.updateBoard(updateBoardRequestDto,boardId);
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResDto<>(1,"글 수정완료",result));
     }
+
+    @Operation(
+            description = "커뮤니티 삭제하는 API"
+    )
     @DeleteMapping("/{boardId}")
     public ResponseEntity<CommonResDto<?>> deleteBoard(@PathVariable Long boardId){
 

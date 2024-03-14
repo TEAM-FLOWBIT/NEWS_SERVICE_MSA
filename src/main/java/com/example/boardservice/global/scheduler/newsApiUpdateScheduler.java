@@ -31,8 +31,7 @@ public class newsApiUpdateScheduler {
      * 요일에서 0과 7은 일요일이며, 1부터 월요일이고 6이 토요일이다.
      */
     @Scheduled(cron = "0 0 */1 * * ?", zone = "Asia/Seoul")
-    public void resetScoresDaily() throws Exception {
-
+    public void updateNewsDataEveryHour() throws Exception {
         log.info("Scheduled  news api");
         List<NaverNewsResponseDto> newsBitCoinData = newsService.readNaverNewsData(searchBitCoin, 100L);
         newsService.saveNewsApiData(newsBitCoinData);

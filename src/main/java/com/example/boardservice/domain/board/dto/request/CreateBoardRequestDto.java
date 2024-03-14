@@ -1,6 +1,8 @@
 package com.example.boardservice.domain.board.dto.request;
 
 import com.example.boardservice.domain.board.entity.*;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
