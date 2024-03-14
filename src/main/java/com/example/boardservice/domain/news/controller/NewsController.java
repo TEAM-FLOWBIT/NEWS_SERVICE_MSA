@@ -43,7 +43,7 @@ public class NewsController {
             description = "news데이터 list를 받아오고 , 페이징 처리하는 API"
     )
     @GetMapping("")
-    public ResponseEntity<CommonResDto<?>> readNewsList(@RequestParam(required = false) NewsSearchCondition newsSearchCondition,
+    public ResponseEntity<CommonResDto<?>> readNewsList(NewsSearchCondition newsSearchCondition,
                                                         Pageable pageable){
 
         Page<NewsResponseDto> result =newsService.readNewsList(newsSearchCondition, pageable);

@@ -37,8 +37,8 @@ public class BoardController {
             description = "커뮤니티 리스트를 가져오는 API 페이징 가능 동저구커리 가능"
     )
     @GetMapping("")
-    public ResponseEntity<CommonResDto<?>> boardList(@RequestParam(required = false) BoardSearchCondition boardSearchCondition,
-                                                     @RequestParam(required = false) Pageable pageable){
+    public ResponseEntity<CommonResDto<?>> boardList(BoardSearchCondition boardSearchCondition,
+                                                     Pageable pageable){
 
         Page<ReadBoardListResponseDto> result = boardService.readBoardList(pageable,boardSearchCondition);
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResDto<>(1,"글 리스트 조회 성공",result));
