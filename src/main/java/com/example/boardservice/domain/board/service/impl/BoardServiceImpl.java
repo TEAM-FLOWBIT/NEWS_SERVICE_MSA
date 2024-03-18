@@ -7,10 +7,13 @@ import com.example.boardservice.domain.board.dto.response.ReadBoardListResponseD
 import com.example.boardservice.domain.board.dto.response.UpdateBoardResponseDto;
 import com.example.boardservice.domain.board.entity.Board;
 import com.example.boardservice.domain.board.entity.BoardImage;
+import com.example.boardservice.domain.board.entity.BoardTags;
 import com.example.boardservice.domain.board.exception.error.BoardNotFoundException;
 import com.example.boardservice.domain.board.exception.error.UnAuthorizedException;
 import com.example.boardservice.domain.board.repository.BoardRepository;
+import com.example.boardservice.domain.board.repository.BoardTagRepository;
 import com.example.boardservice.domain.board.service.BoardService;
+import com.example.boardservice.domain.board.service.BoardTagService;
 import com.example.boardservice.global.aws.AwsS3Service;
 import com.example.boardservice.global.client.UserServiceClient;
 import com.example.boardservice.global.client.dto.MemberInfoByMemberIdResponseDto;
@@ -40,6 +43,9 @@ public class BoardServiceImpl implements BoardService {
     private final BoardRepository boardRepository;
     private final AwsS3Service awsS3Service;
     private final UserServiceClient userServiceClient;
+    private final BoardTagService boardTagService;
+    private final BoardTagRepository boardTagRepository;
+
 
 
     @Override
@@ -53,19 +59,24 @@ public class BoardServiceImpl implements BoardService {
         Board board = createBoardRequestDto.toEntity(createBoardRequestDto, Translator.getMemberId(memberId));
         Board savedBoard = boardRepository.save(board);
 
+        // 태그 단어 저장
+        List<BoardTags> boardTag = boardTagService.createBoardTag(savedBoard, createBoardRequestDto.getBoardTags());
+
+
         if (createBoardRequestDto.getPictures() != null && !createBoardRequestDto.getPictures().isEmpty()) {
-            //aws upload
-            uploadedPaths = uploadImages(createBoardRequestDto.getPictures(), memberId);
             // image 저장
             List<BoardImage> boardImageList = boardImageToEntity(uploadedPaths, savedBoard,memberId);
             for (BoardImage boardImage : boardImageList) {
                 board.addBoardImage(boardImage);
             }
+            //aws upload
+            uploadedPaths = awsS3UploadImages(createBoardRequestDto.getPictures(), memberId);
         }
         return CreateBoardResponseDto.builder()
                 .board(savedBoard)
                 .memberInfoResponseDto(memberInfo.getData())
                 .imagePaths(uploadedPaths)
+                .boardTags(boardTag)
                 .build();
     }
 
@@ -122,6 +133,8 @@ public class BoardServiceImpl implements BoardService {
         board.updateBoard(updateBoardRequestDto);
         List<String> uploadedPaths = updateBoardImages(board, uploadedFiles, existingImages, memberId);
 
+        boardTagService.updateBoardTag(board,updateBoardRequestDto.getBoardTags());
+
         return UpdateBoardResponseDto.builder()
                 .board(board)
                 .memberInfoResponseDto(memberInfo.getData())
@@ -137,7 +150,7 @@ public class BoardServiceImpl implements BoardService {
                 .build()).collect(Collectors.toList());
     }
 
-    private List<String> uploadImages(List<MultipartFile> pictures, Long memberId) {
+    private List<String> awsS3UploadImages(List<MultipartFile> pictures, Long memberId) {
         return pictures.stream().map(image -> {
             try {
                 return awsS3Service.upload(image.getOriginalFilename(), image, String.valueOf(memberId));
@@ -150,7 +163,7 @@ public class BoardServiceImpl implements BoardService {
                                    Long memberId) {
 
         deleteAllExistingImages(board, existingImages);
-        List<String> uploadedImages = uploadImages(updatePictures, memberId);
+        List<String> uploadedImages = awsS3UploadImages(updatePictures, memberId);
         uploadedImages.forEach(image -> {
             BoardImage boardImage = BoardImage.builder()
                     .image(image)

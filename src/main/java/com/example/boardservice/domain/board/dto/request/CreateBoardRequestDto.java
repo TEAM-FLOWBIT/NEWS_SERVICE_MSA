@@ -9,6 +9,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.Column;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -16,13 +18,15 @@ import java.util.List;
 @Getter
 @Builder
 public class CreateBoardRequestDto {
-    @NotEmpty(message = "제목을 입력해주세요.")
+
+    @NotEmpty(message = "내용을 입력해주세요.")
     private String title;
     @NotEmpty(message = "내용을 입력해주세요.")
     private String content;
-    @NotEmpty(message = "카테고리를 지정해주세요.")
     private BoardCategory boardCategory;
+    @Size.List(value = @Size(min = 1, max = 3, message = "최대 3장까지 업로드할 수 있습니다."))
     List<MultipartFile> pictures;
+    private String boardTags;
 
     public Board toEntity(CreateBoardRequestDto createBoardRequestDto, MemberId memberId) {
         return Board.builder()

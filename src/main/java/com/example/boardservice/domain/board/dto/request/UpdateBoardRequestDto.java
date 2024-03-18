@@ -18,6 +18,8 @@ public class UpdateBoardRequestDto {
     private String title;
     @NotEmpty(message = "내용을 입력해주세요.")
     private String content;
+    @NotEmpty(message = "내용을 입력해주세요.")
+    private String boardTags;
     @Column(nullable = false)
     List<MultipartFile> pictures;
     public Board toEntity(UpdateBoardRequestDto updateBoardRequestDto, MemberId memberId) {

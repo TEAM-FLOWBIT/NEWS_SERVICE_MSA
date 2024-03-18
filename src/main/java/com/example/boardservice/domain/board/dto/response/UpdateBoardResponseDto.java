@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.Column;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -18,6 +19,7 @@ public class UpdateBoardResponseDto {
     private String content;
     private String memberId;
     private String memberNickname;
+    private List<String> boardTags;
     private List<String> imagePaths;
 
 
@@ -28,6 +30,7 @@ public class UpdateBoardResponseDto {
         this.content = board.getContent();
         this.memberId=memberInfoResponseDto.getEmail();
         this.memberNickname=memberInfoResponseDto.getNickname();
+        this.boardTags=board.getBoardTags().stream().map(bt->bt.getTag().getWord()).collect(Collectors.toList());
         this.imagePaths=imagePaths;
     }
 }

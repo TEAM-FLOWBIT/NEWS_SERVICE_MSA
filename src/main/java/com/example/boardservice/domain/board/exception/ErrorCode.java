@@ -18,6 +18,7 @@ public enum ErrorCode {
     EMAIL_VALID_EXCEPTION(HttpStatus.BAD_REQUEST,"REQ_003","이메일 인증번호가 유효하지않습니다"),
     BOARD_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, "REQ_004","등록된 글이 없습니다"),
     BOARDCOMMNET_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, "REQ_005","등록된 댓글이 없습니다"),
+    BOARDTAG_NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND, "REQ_006","등록된 태그가 없습니다"),
     DATABASE_VALIDATION_ERROR(HttpStatus.CONFLICT,"VALIDATION_001","DB ERROR"),
     DUPLIDATE_LIKE_EXCEPTION(HttpStatus.CONFLICT,"VALIDATION_002","좋아요는 중복해서 할 수 없습니다.");
 

@@ -18,7 +18,6 @@ import java.util.List;
 public class newsApiUpdateScheduler {
 
     private final NewsService newsService;
-    private final EntityManager em;
     private static final String searchBitCoin="비트코인";
     private static final String searchRipple="리플";
     private static final String searchEthereum="이더리움";

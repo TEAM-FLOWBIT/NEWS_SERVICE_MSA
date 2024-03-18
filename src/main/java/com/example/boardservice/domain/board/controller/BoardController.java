@@ -22,7 +22,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -48,8 +54,15 @@ public class BoardController {
             description = "커뮤니티를 생성하는 API"
     )
     @PostMapping("")
-    public ResponseEntity<CommonResDto<?>> createBoard(@ModelAttribute CreateBoardRequestDto createBoardResquestDto){
+    public ResponseEntity<CommonResDto<?>> createBoard(@Valid @ModelAttribute CreateBoardRequestDto createBoardResquestDto, BindingResult bindingResult){
         log.info("커뮤니티 글쓰기 API");
+        if (bindingResult.hasErrors()) {
+            String errorMessage = bindingResult.getFieldErrors().stream()
+                    .map(fieldError -> fieldError.getField() + " " + fieldError.getDefaultMessage())
+                    .collect(Collectors.joining(", "));
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CommonResDto<>(0,errorMessage,null));
+        }
         CreateBoardResponseDto result = boardService.createBoard(createBoardResquestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(new CommonResDto<>(1,"글 작성완료",result));
     }
@@ -57,8 +70,15 @@ public class BoardController {
             description = "커뮤니티 업데이트하는 API"
     )
     @PutMapping("/{boardId}")
-    public ResponseEntity<CommonResDto<?>> updateBoard(@PathVariable Long boardId,@ModelAttribute UpdateBoardRequestDto updateBoardRequestDto){
+    public ResponseEntity<CommonResDto<?>> updateBoard(@PathVariable Long boardId, @ModelAttribute UpdateBoardRequestDto updateBoardRequestDto, BindingResult bindingResult){
         log.info("커뮤니티 업데이트 API");
+        if (bindingResult.hasErrors()) {
+            String errorMessage = bindingResult.getFieldErrors().stream()
+                    .map(fieldError -> fieldError.getField() + " " + fieldError.getDefaultMessage())
+                    .collect(Collectors.joining(", "));
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CommonResDto<>(0,errorMessage,null));
+        }
         UpdateBoardResponseDto result = boardService.updateBoard(updateBoardRequestDto,boardId);
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResDto<>(1,"글 수정완료",result));
     }

@@ -27,6 +27,7 @@ public class ReadBoardListResponseDto {
     private Long boardLikeCount;
     private Long boardCommentCount;
     private String boardCategory;
+    private List<String> boardTags;
     private List<BoardListWithComment> comments=new ArrayList<>();
 
     @Builder
@@ -44,6 +45,7 @@ public class ReadBoardListResponseDto {
         this.boardLikeCount=board.getLike().getLikeCount();
         this.boardCommentCount=board.getBoardCommentCount().getBoardCommentCount();
         this.boardCategory=board.getBoardCategory().getLabel();
+        this.boardTags=board.getBoardTags().stream().map(bt->bt.getTag().getWord()).collect(Collectors.toList());
         this.comments = board.getBoardComments().stream().map(boardComment -> new BoardListWithComment(boardComment,memberInfoByMemberIdResponseDto)).collect(Collectors.toList());
     }
 }
