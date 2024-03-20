@@ -54,13 +54,16 @@ public class BoardServiceImpl implements BoardService {
         CommonResDto<MemberInfoResponseDto> memberInfo = userServiceClient.getMemberInfo();
         Long memberId=memberInfo.getData().getId();
         List<String> uploadedPaths = new ArrayList<>();
+        List<BoardTags> boardTag = new ArrayList<>();
 
 
-        Board board = createBoardRequestDto.toEntity(createBoardRequestDto, Translator.getMemberId(memberId));
+                Board board = createBoardRequestDto.toEntity(createBoardRequestDto, Translator.getMemberId(memberId));
         Board savedBoard = boardRepository.save(board);
 
         // 태그 단어 저장
-        List<BoardTags> boardTag = boardTagService.createBoardTag(savedBoard, createBoardRequestDto.getBoardTags());
+        if(createBoardRequestDto.getBoardTags() != null && !createBoardRequestDto.getBoardTags().isEmpty()){
+            boardTag = boardTagService.createBoardTag(savedBoard, createBoardRequestDto.getBoardTags());
+        }
 
 
         if (createBoardRequestDto.getPictures() != null && !createBoardRequestDto.getPictures().isEmpty()) {
@@ -124,6 +127,8 @@ public class BoardServiceImpl implements BoardService {
     public UpdateBoardResponseDto updateBoard(UpdateBoardRequestDto updateBoardRequestDto,Long boardId) {
         CommonResDto<MemberInfoResponseDto> memberInfo = userServiceClient.getMemberInfo();
         Long memberId = memberInfo.getData().getId();
+        List<String> uploadedPaths =new ArrayList<>();
+        List<BoardTags> boardTags=new ArrayList<>();
 
         List<MultipartFile> uploadedFiles = updateBoardRequestDto.getPictures();
         Board board = boardRepository.findById(boardId)
@@ -131,14 +136,19 @@ public class BoardServiceImpl implements BoardService {
         List<BoardImage> existingImages = board.getBoardImages();
 
         board.updateBoard(updateBoardRequestDto);
-        List<String> uploadedPaths = updateBoardImages(board, uploadedFiles, existingImages, memberId);
+        if(updateBoardRequestDto.getPictures()!=null && !updateBoardRequestDto.getPictures().isEmpty()){
+            updateBoardImages(board, uploadedFiles, existingImages, memberId);
+        }
 
-        boardTagService.updateBoardTag(board,updateBoardRequestDto.getBoardTags());
+        if(updateBoardRequestDto.getBoardTags()!=null && !updateBoardRequestDto.getBoardTags().isEmpty()){
+            boardTags = boardTagService.updateBoardTag(board, updateBoardRequestDto.getBoardTags());
+        }
 
         return UpdateBoardResponseDto.builder()
                 .board(board)
                 .memberInfoResponseDto(memberInfo.getData())
                 .imagePaths(uploadedPaths)
+                .boardTags(boardTags)
                 .build();
     }
 

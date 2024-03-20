@@ -1,6 +1,7 @@
 package com.example.boardservice.domain.board.dto.response;
 
 import com.example.boardservice.domain.board.entity.Board;
+import com.example.boardservice.domain.board.entity.BoardTags;
 import com.example.boardservice.global.client.dto.MemberInfoResponseDto;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,13 +25,13 @@ public class UpdateBoardResponseDto {
 
 
     @Builder
-    public UpdateBoardResponseDto(Board board, MemberInfoResponseDto memberInfoResponseDto, List<String> imagePaths) {
+    public UpdateBoardResponseDto(Board board, MemberInfoResponseDto memberInfoResponseDto, List<String> imagePaths, List<BoardTags> boardTags) {
         this.boardId = board.getId();
         this.title = board.getTitle();
         this.content = board.getContent();
         this.memberId=memberInfoResponseDto.getEmail();
         this.memberNickname=memberInfoResponseDto.getNickname();
-        this.boardTags=board.getBoardTags().stream().map(bt->bt.getTag().getWord()).collect(Collectors.toList());
+        this.boardTags=boardTags.stream().map(bt->bt.getTag().getWord()).collect(Collectors.toList());
         this.imagePaths=imagePaths;
     }
 }
