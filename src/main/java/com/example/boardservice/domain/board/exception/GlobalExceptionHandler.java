@@ -5,6 +5,7 @@ import com.example.boardservice.domain.board.exception.dto.ErrorResponse;
 import com.example.boardservice.domain.board.exception.error.*;
 import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -35,7 +36,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UnAuthorizedException.class)
-    public ResponseEntity<Object> handleUnAuthorizedException(UnAuthorizedException ex) {
+    public ResponseEntity<Object> handleUnAuthorizedException() {
         log.error("UnAuthorizedException :: ");
 
         ErrorCode errorCode = ErrorCode.UnAuthorizedException;
@@ -55,14 +56,38 @@ public class GlobalExceptionHandler {
 
     }
 
+
     /**
      * 게시글을 찾지 못했을 때
      */
     @ExceptionHandler(BoardNotFoundException.class)
-    protected ResponseEntity<?> handleBoardNotFoundException(BoardNotFoundException ex) {
+    protected ResponseEntity<?> handleBoardNotFoundException() {
         log.error("handleBoardNotFoundException :: ");
 
         ErrorCode errorCode = ErrorCode.BOARD_NOT_FOUND_EXCEPTION;
+
+        ErrorResponse error = ErrorResponse.builder()
+                .status(errorCode.getStatus().value())
+                .message(errorCode.getMessage())
+                .code(errorCode.getCode())
+                .build();
+
+        CommonResponse response = CommonResponse.builder()
+                .success(false)
+                .error(error)
+                .build();
+
+        return new ResponseEntity<>(response, errorCode.getStatus());
+    }
+
+    /**
+     * 게시글태그를 찾을 못했을 경우
+     */
+    @ExceptionHandler(BoardTagNotFoundException.class)
+    protected ResponseEntity<?> handleBoardTagNotFoundException() {
+        log.error("handleBoardTagNotFoundException :: ");
+
+        ErrorCode errorCode = ErrorCode.BOARDTAG_NOT_FOUND_EXCEPTION;
 
         ErrorResponse error = ErrorResponse.builder()
                 .status(errorCode.getStatus().value())
@@ -91,7 +116,7 @@ public class GlobalExceptionHandler {
      * DuplidateLikeException
      */
     @ExceptionHandler(DuplicateLikeException.class)
-    protected ResponseEntity<?> handleDuplicateLikeException(DuplicateLikeException ex) {
+    protected ResponseEntity<?> handleDuplicateLikeException() {
         log.error("DuplicateLikeException :: ");
 
         ErrorCode errorCode = ErrorCode.DUPLIDATE_LIKE_EXCEPTION;
@@ -116,7 +141,7 @@ public class GlobalExceptionHandler {
      * MemberId 찾지 못했을 경우
      */
     @ExceptionHandler(MemberIdNullOrEmptyException.class)
-    protected ResponseEntity<?> handleMemberIdNullOrEmptyException(MemberIdNullOrEmptyException ex) {
+    protected ResponseEntity<?> handleMemberIdNullOrEmptyException() {
         log.error("MemberIdNullOrEmptyException :: ");
 
         ErrorCode errorCode = ErrorCode.MemberIdNullOrEmptyException;
@@ -139,7 +164,7 @@ public class GlobalExceptionHandler {
      * 게시글 댓글을 찾지 못했을 때
      */
     @ExceptionHandler(BoardCommentNotFoundException.class)
-    protected ResponseEntity<?> handleBoardCommentNotFoundException(BoardCommentNotFoundException ex) {
+    protected ResponseEntity<?> handleBoardCommentNotFoundException() {
         log.error("BoardCommentNotFoundException :: ");
 
         ErrorCode errorCode = ErrorCode.BOARDCOMMNET_NOT_FOUND_EXCEPTION;
@@ -159,36 +184,36 @@ public class GlobalExceptionHandler {
     }
     /**
      * 리퀘스트 파라미터 바인딩이 실패했을때
-     */
+     * */
     @ExceptionHandler(BindException.class)
-    protected ResponseEntity<CommonResponse> handleRequestParameterBindException(BindException ex) {
-        log.error("handleRequestParameterBindException :: ");
-
+    public ResponseEntity<CommonResponse> handleBindException(final BindingResult bindingResult) {
+        log.error("handleBindException :: ");
         ErrorCode errorCode = ErrorCode.REQUEST_PARAMETER_BIND_EXCEPTION;
 
-        ErrorResponse error = ErrorResponse.builder()
-                .status(errorCode.getStatus().value())
-                .message(errorCode.getMessage())
-                .code(errorCode.getCode())
-                .build();
+
+        String defaultMessage = bindingResult.getFieldErrors()
+                .get(0)
+                .getDefaultMessage();
+
 
         CommonResponse response = CommonResponse.builder()
                 .success(false)
-                .error(error)
+                .error(defaultMessage)
                 .build();
+
 
         return new ResponseEntity<>(response, errorCode.getStatus());
     }
 
 
     /**
-     *
-     * 유효성검사에 실패하는
+     * 유효성검사에 실패하는 경우
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    protected ResponseEntity<?> argumentNotValidException(BindingResult bindingResult,MethodArgumentNotValidException ex) {
+    protected ResponseEntity<?> argumentNotValidException(MethodArgumentNotValidException ex) {
         log.error("argumentNotValidException :: ");
-        List<FieldError> fieldErrors = bindingResult.getFieldErrors();
+
+        List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors();
         ErrorCode errorCode = ErrorCode.REQUEST_PARAMETER_BIND_EXCEPTION;
 
         List<String> errorMessages = fieldErrors.stream()

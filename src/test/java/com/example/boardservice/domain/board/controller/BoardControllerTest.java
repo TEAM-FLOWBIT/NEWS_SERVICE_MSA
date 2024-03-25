@@ -1,5 +1,6 @@
 package com.example.boardservice.domain.board.controller;
 import com.example.boardservice.domain.board.entity.Board;
+import com.example.boardservice.domain.board.fixture.BoardFixture;
 import com.example.boardservice.domain.board.repository.BoardCommentRepository;
 import com.example.boardservice.domain.board.repository.BoardRepository;
 import com.example.boardservice.domain.board.service.BoardService;
@@ -19,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.client.HttpClientErrorException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -43,7 +45,6 @@ class BoardControllerTest extends ControllerTestSupport {
     private MockMvc mockMvc;
     @MockBean
     private UserServiceClient userServiceClient;
-//    private static Long initalUserMemberId=1L;
     @BeforeEach
     void setUp() {
 
@@ -65,11 +66,7 @@ class BoardControllerTest extends ControllerTestSupport {
     @Test
     void creaetBoard() throws Exception {
         // Create a mock board
-        Board board = Board.builder()
-                .title("제목")
-                .memberId(Translator.getMemberId(1L))
-                .content("내용")
-                .build();
+        Board board = BoardFixture.createBoard(1L);
         String url = "/api/v1/board";
         //when //then
         MvcResult mvcResult = mockMvc.perform(
@@ -112,16 +109,58 @@ class BoardControllerTest extends ControllerTestSupport {
 
     }
 
+    @DisplayName("로그인을 한 유저는 커뮤니티에 게시글을과함께 태그를 작성할 수 있다.")
+    @Test
+    void creaetBoardWithTag() throws Exception {
+        // Create a mock board
+        Board board = BoardFixture.createBoard(1L);
+        String url = "/api/v1/board";
+        //when //then
+        MvcResult mvcResult = mockMvc.perform(
+
+                        multipart(url)
+                                .param("title","제목입니다")
+                                .param("content","내용입니다")
+                                .param("boardCategory","BITCOIN")
+                                .param("boardTags","[테스트,테스트1,테스트2]")
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                )
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andReturn();
+    }
+
+    @DisplayName("로그인을 한 유저는 커뮤니티에 게시글을 수정할 수 있다.")
+    @Test
+    void updateBoard() throws Exception {
+        // Create a mock board
+        Board board = BoardFixture.createBoard(1L);
+
+
+        Board savedBoard = boardRepository.saveAndFlush(board);
+
+        String url = "/api/v1/board/"+savedBoard.getId();
+        //when //then
+
+        MvcResult mvcResult = mockMvc.perform(
+                        MockMvcRequestBuilders.put(url)
+                                .param("title","제목입니다")
+                                .param("content","내용입니다")
+                                .param("boardCategory","BITCOIN")
+                                .param("boardTags","[테스트,테스트1,테스트2]")
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+    }
+
     @DisplayName("로그인을 한 유저는 자신이 등록한 커뮤니티를 삭제 할 수 있다.")
     @Test
     void deleteBoard() throws Exception {
 
         //given
-        Board board= Board.builder()
-                .title("제목")
-                .memberId(Translator.getMemberId(1L))
-                .content("내용")
-                .build();
+        Board board = BoardFixture.createBoard(1L);
         boardRepository.saveAndFlush(board);
         String url = "/api/v1/board/"+board.getId();
         //when //then
@@ -156,11 +195,7 @@ class BoardControllerTest extends ControllerTestSupport {
     @Test
     void loggedInUserCannotDeleteOtherUserBoard() throws Exception {
         //given
-        Board board= Board.builder()
-                .title("제목")
-                .memberId(Translator.getMemberId(2L)) // another user
-                .content("내용")
-                .build();
+        Board board = BoardFixture.createBoard(2L);
         boardRepository.saveAndFlush(board);
         String url = "/api/v1/board/"+board.getId();
         //when //then

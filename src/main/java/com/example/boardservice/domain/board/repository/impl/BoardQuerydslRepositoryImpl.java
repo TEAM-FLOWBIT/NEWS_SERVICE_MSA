@@ -1,30 +1,33 @@
 package com.example.boardservice.domain.board.repository.impl;
 
 import com.example.boardservice.domain.board.dto.BoardSearchCondition;
-import com.example.boardservice.domain.board.entity.Board;
+import com.example.boardservice.domain.board.entity.*;
 import com.example.boardservice.domain.board.repository.BoardQuerydslRepository;
 import com.example.boardservice.global.config.Querydsl4RepositorySupport;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.PathBuilder;
+import com.querydsl.core.types.dsl.*;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.example.boardservice.domain.board.entity.QBoard.board;
+import static com.example.boardservice.domain.board.entity.QBoardTags.boardTags;
+import static com.example.boardservice.domain.board.entity.QTag.tag;
 
 
 public class BoardQuerydslRepositoryImpl extends Querydsl4RepositorySupport implements BoardQuerydslRepository {
+
 
 
     public BoardQuerydslRepositoryImpl() {
@@ -38,7 +41,9 @@ public class BoardQuerydslRepositoryImpl extends Querydsl4RepositorySupport impl
 
         JPAQuery<Board> contentQuery = new JPAQueryFactory(getEntityManager()).
         selectFrom(board)
-                .where(searchWordExpression(boardSearchCondition.getSearchword()),categoryExpression(boardSearchCondition.getCategory()))
+                .where(searchWordExpression(boardSearchCondition.getSearchword())
+                        ,categoryExpression(boardSearchCondition.getCategory())
+                        ,boardTagExpression(boardSearchCondition.getBoardTag()))
                 .offset(pageable.getOffset())
                 .orderBy(getOrderSpecifier(pageable.getSort()).stream().toArray(OrderSpecifier[]::new))
                 .limit(pageable.getPageSize());
@@ -46,7 +51,9 @@ public class BoardQuerydslRepositoryImpl extends Querydsl4RepositorySupport impl
         JPAQuery<Long> countQuery = new JPAQueryFactory(getEntityManager())
                 .select(board.count())
                 .from(board)
-                .where(searchWordExpression(boardSearchCondition.getSearchword()));
+                .where(searchWordExpression(boardSearchCondition.getSearchword())
+                        ,categoryExpression(boardSearchCondition.getCategory())
+                        ,boardTagExpression(boardSearchCondition.getBoardTag()));
 
         if (weekRange[0] != null && weekRange[1] != null) {
             contentQuery = contentQuery.where(board.updatedAt.between(weekRange[0], weekRange[1]));
@@ -97,13 +104,13 @@ public class BoardQuerydslRepositoryImpl extends Querydsl4RepositorySupport impl
      */
     private BooleanExpression searchWordExpression(String searchWord) {
 
-        return Optional.ofNullable(searchWord) //seachWord가 null이 아닌경우에 Optional로 감싸기
-                .filter(word->!word.isEmpty()) // searchWord가 비어 있지 않은경우에만 map 함수
+        return Optional.ofNullable(searchWord)
+                .filter(word->!word.isEmpty())
                 .map(word-> Stream.of(board.content.containsIgnoreCase(word),
                                 board.title.containsIgnoreCase(word))
-                        .reduce(BooleanExpression::or) // 위 조건들을 OR 연산으로 묶음
+                        .reduce(BooleanExpression::or)
                         .orElse(null))
-                .orElse(null);//  // 만약 조건이 없으면 null 반환
+                .orElse(null);//
 
     }
 
@@ -113,14 +120,39 @@ public class BoardQuerydslRepositoryImpl extends Querydsl4RepositorySupport impl
      */
     private BooleanExpression categoryExpression(String category) {
 
-        return Optional.ofNullable(category) //seachWord가 null이 아닌경우에 Optional로 감싸기
-                .filter(word->!word.isEmpty()) // searchWord가 비어 있지 않은경우에만 map 함수
+        return Optional.ofNullable(category)
+                .filter(word->!word.isEmpty())
                 .map(word-> Stream.of(board.boardCategory.stringValue().containsIgnoreCase(category))
-                        .reduce(BooleanExpression::or) // 위 조건들을 OR 연산으로 묶음
+                        .reduce(BooleanExpression::or)
                         .orElse(null))
-                .orElse(null);//  // 만약 조건이 없으면 null 반환
+                .orElse(null);
 
     }
+    /**
+     * 해당 태그에 맞는 게시글
+     */
+    private BooleanExpression boardTagExpression(String boardTag) {
+        if (boardTag == null || boardTag.isEmpty()) {
+            return null;
+        }
+
+        List<Board> boardsWithTag = getQueryFactory().selectFrom(board)
+                .join(board.boardTags, boardTags)
+                .join(boardTags.tag, tag)
+                .where(tag.word.eq(boardTag))
+                .fetch();
+
+        List<Long> boardIds = boardsWithTag.stream()
+                .map(Board::getId)
+                .collect(Collectors.toList());
+
+
+        return board.id.in(boardIds);
+    }
+
+
+
+
 
     /**
      * 동적 orderby

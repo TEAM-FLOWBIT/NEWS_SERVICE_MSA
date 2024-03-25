@@ -53,6 +53,9 @@ public class Board extends BaseTimeEntity {
     @Builder.Default
     private List<BoardLike> boardLikes= new ArrayList<>();
 
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BoardTags> boardTags;
+
 
     /**
      * board
