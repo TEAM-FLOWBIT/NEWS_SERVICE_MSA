@@ -17,7 +17,7 @@ import java.util.List;
 
 @Configuration
 @OpenAPIDefinition
-@Profile("dev,prod")
+@Profile("prod")
 public class SwaggerConfiguration {
 
     @Bean
