@@ -8,4 +8,6 @@ import lombok.*;
 @AllArgsConstructor
 public class NewsSearchCondition {
     private String tag;
+    private String searchword;
 }
+
