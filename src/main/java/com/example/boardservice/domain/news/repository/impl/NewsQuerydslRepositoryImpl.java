@@ -34,7 +34,8 @@ public class NewsQuerydslRepositoryImpl extends Querydsl4RepositorySupport imple
     public Page<News> readBoardList(NewsSearchCondition newsSearchCondition, Pageable pageable) {
         JPAQuery<News> contentQuery = new JPAQueryFactory(getEntityManager()).
                 selectFrom(news)
-                .where(newsTagExpression(newsSearchCondition.getTag()))
+                .where(newsTagExpression(newsSearchCondition.getTag()),
+                        searchWordExpression(newsSearchCondition.getSearchword()))
                 .offset(pageable.getOffset())
                 .orderBy(getOrderSpecifier(pageable.getSort()).stream().toArray(OrderSpecifier[]::new))
                 .limit(pageable.getPageSize());
@@ -42,7 +43,7 @@ public class NewsQuerydslRepositoryImpl extends Querydsl4RepositorySupport imple
         JPAQuery<Long> countQuery = new JPAQueryFactory(getEntityManager())
                 .select(news.count())
                 .from(news)
-                .where(newsTagExpression(newsSearchCondition.getTag()));
+                .where(newsTagExpression(newsSearchCondition.getTag()),searchWordExpression(newsSearchCondition.getSearchword()));
 
         return PageableExecutionUtils.getPage(contentQuery.fetch(),pageable, countQuery::fetchCount);
     }
@@ -58,6 +59,24 @@ public class NewsQuerydslRepositoryImpl extends Querydsl4RepositorySupport imple
         return Optional.ofNullable(tag) //seachWord가 null이 아닌경우에 Optional로 감싸기
                 .filter(word -> !word.isEmpty()).flatMap(word -> Optional.of(news.tag.contains(tag)))
                 .orElse(null);//  // 만약 조건이 없으면 null 반환
+
+    }
+
+
+    /**
+     * 검색어 단어를 통한 동적검색
+     */
+    private BooleanExpression searchWordExpression(String searchWord) {
+
+        return Optional.ofNullable(searchWord)
+                .filter(word->!word.isEmpty())
+                .map(word-> Stream.of(news.title.containsIgnoreCase(word),
+                                news.tag.containsIgnoreCase(word),
+                                news.description.containsIgnoreCase(word),
+                                news.link.containsIgnoreCase(word))
+                        .reduce(BooleanExpression::or)
+                        .orElse(null))
+                .orElse(null);//
 
     }
 
