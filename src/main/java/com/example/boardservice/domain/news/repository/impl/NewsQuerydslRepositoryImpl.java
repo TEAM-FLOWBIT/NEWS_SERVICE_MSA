@@ -44,10 +44,8 @@ public class NewsQuerydslRepositoryImpl extends Querydsl4RepositorySupport imple
                 .select(news.count())
                 .from(news)
                 .where(newsTagExpression(newsSearchCondition.getTag()),
-                        searchWordExpression(newsSearchCondition.getSearchword()))
-                .offset(pageable.getOffset())
-                .orderBy(getOrderSpecifier(pageable.getSort()).stream().toArray(OrderSpecifier[]::new))
-                .limit(pageable.getPageSize());
+                        searchWordExpression(newsSearchCondition.getSearchword()));
+
         return PageableExecutionUtils.getPage(contentQuery.fetch(),pageable, countQuery::fetchOne);
     }
 
