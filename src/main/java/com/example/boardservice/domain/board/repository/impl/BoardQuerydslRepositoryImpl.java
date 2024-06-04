@@ -53,13 +53,17 @@ public class BoardQuerydslRepositoryImpl extends Querydsl4RepositorySupport impl
                 .from(board)
                 .where(searchWordExpression(boardSearchCondition.getSearchword())
                         ,categoryExpression(boardSearchCondition.getCategory())
-                        ,boardTagExpression(boardSearchCondition.getBoardTag()));
+                        ,boardTagExpression(boardSearchCondition.getBoardTag()))
+                .offset(pageable.getOffset())
+                .orderBy(getOrderSpecifier(pageable.getSort()).stream().toArray(OrderSpecifier[]::new))
+                .limit(pageable.getPageSize());
+
 
         if (weekRange[0] != null && weekRange[1] != null) {
             contentQuery = contentQuery.where(board.updatedAt.between(weekRange[0], weekRange[1]));
         }
 
-        return PageableExecutionUtils.getPage(contentQuery.fetch(),pageable, countQuery::fetchCount);
+        return PageableExecutionUtils.getPage(contentQuery.fetch(),pageable, countQuery::fetchOne);
     }
 
     private static LocalDateTime[] showDataForPastWeeks(BoardSearchCondition boardSearchCondition) {

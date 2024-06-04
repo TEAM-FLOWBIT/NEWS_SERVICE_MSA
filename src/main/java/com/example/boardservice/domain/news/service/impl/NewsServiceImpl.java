@@ -97,11 +97,12 @@ public class NewsServiceImpl implements NewsService {
     }
 
     @Override
-    public Page<NewsResponseDto> readNewsList(NewsSearchCondition newsSearchCondition, Pageable pageable) {
+    public Page<News> readNewsList(NewsSearchCondition newsSearchCondition, Pageable pageable) {
         Page<News> newsList = newsRepository.readBoardList(newsSearchCondition, pageable);
-        List<NewsResponseDto> dtoList = newsList.stream().map(NewsResponseDto::new).collect(Collectors.toList());
-
-        return new PageImpl<>(dtoList, pageable, newsList.getSize());
+        return newsList;
+//        List<NewsResponseDto> dtoList = newsList.stream().map(NewsResponseDto::new).collect(Collectors.toList());
+//        return newsList
+//        return new PageImpl<>(dtoList, newsList.getPageable(), dtoList.size());
     }
 
     @Override

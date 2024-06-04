@@ -2,6 +2,7 @@ package com.example.boardservice.domain.news.controller;
 
 import com.example.boardservice.domain.news.dto.NewsSearchCondition;
 import com.example.boardservice.domain.news.dto.response.NewsResponseDto;
+import com.example.boardservice.domain.news.entity.News;
 import com.example.boardservice.domain.news.service.NewsService;
 import com.example.boardservice.global.common.CommonResDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,7 +47,7 @@ public class NewsController {
     public ResponseEntity<CommonResDto<?>> readNewsList(NewsSearchCondition newsSearchCondition,
                                                         Pageable pageable){
 
-        Page<NewsResponseDto> result =newsService.readNewsList(newsSearchCondition, pageable);
+        newsService.readNewsList(newsSearchCondition, pageable)
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResDto<>(1,"뉴스 데이터 읽기 성공",result));
     }
 

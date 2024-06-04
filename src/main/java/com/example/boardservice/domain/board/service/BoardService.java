@@ -6,13 +6,14 @@ import com.example.boardservice.domain.board.dto.request.UpdateBoardRequestDto;
 import com.example.boardservice.domain.board.dto.response.CreateBoardResponseDto;
 import com.example.boardservice.domain.board.dto.response.ReadBoardListResponseDto;
 import com.example.boardservice.domain.board.dto.response.UpdateBoardResponseDto;
+import com.example.boardservice.domain.board.entity.Board;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface BoardService {
     CreateBoardResponseDto createBoard(CreateBoardRequestDto createBoardResquestDto);
 
-    Page<ReadBoardListResponseDto> readBoardList(Pageable pageable, BoardSearchCondition boardSearchCondition);
+    Page<Board>readBoardList(Pageable pageable, BoardSearchCondition boardSearchCondition);
 
     void deleteBoard(Long boardId);
 

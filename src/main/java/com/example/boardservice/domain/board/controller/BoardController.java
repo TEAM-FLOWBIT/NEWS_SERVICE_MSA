@@ -7,6 +7,7 @@ import com.example.boardservice.domain.board.dto.request.UpdateBoardRequestDto;
 import com.example.boardservice.domain.board.dto.response.CreateBoardResponseDto;
 import com.example.boardservice.domain.board.dto.response.ReadBoardListResponseDto;
 import com.example.boardservice.domain.board.dto.response.UpdateBoardResponseDto;
+import com.example.boardservice.domain.board.entity.Board;
 import com.example.boardservice.domain.board.service.BoardService;
 import com.example.boardservice.global.common.CommonResDto;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
@@ -46,7 +47,7 @@ public class BoardController {
     public ResponseEntity<CommonResDto<?>> boardList(BoardSearchCondition boardSearchCondition,
                                                      Pageable pageable){
 
-        Page<ReadBoardListResponseDto> result = boardService.readBoardList(pageable,boardSearchCondition);
+        Page<Board> result = boardService.readBoardList(pageable, boardSearchCondition);
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResDto<>(1,"글 리스트 조회 성공",result));
     }
 

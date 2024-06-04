@@ -3,6 +3,7 @@ package com.example.boardservice.domain.news.service;
 import com.example.boardservice.domain.news.dto.response.NaverNewsResponseDto;
 import com.example.boardservice.domain.news.dto.NewsSearchCondition;
 import com.example.boardservice.domain.news.dto.response.NewsResponseDto;
+import com.example.boardservice.domain.news.entity.News;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -14,7 +15,7 @@ public interface NewsService {
 
     void saveNewsApiData(List<NaverNewsResponseDto> newsData) throws Exception;
 
-    Page<NewsResponseDto> readNewsList(NewsSearchCondition newsSearchCondition, Pageable pageable);
+    Page<News> readNewsList(NewsSearchCondition newsSearchCondition, Pageable pageable);
 
     Long updateNewsViewCount(String link);
 }

@@ -85,24 +85,24 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     @Transactional
-    public Page<ReadBoardListResponseDto> readBoardList(Pageable pageable, BoardSearchCondition boardSearchCondition) {
+    public Page<Board> readBoardList(Pageable pageable, BoardSearchCondition boardSearchCondition) {
         Page<Board> boards = boardRepository.readBoardList(pageable,boardSearchCondition);
 
-        List<ReadBoardListResponseDto> dtoList = boards.stream()
-                .map(board -> {
-                    // 멤버 정보 가져오기
-                    CommonResDto<MemberInfoByMemberIdResponseDto> memberInfoResponseDto = userServiceClient.getMemberInfoByMemberId(board.getMemberId());
-                    MemberInfoByMemberIdResponseDto memberInfoByMemberIdResponseDto = memberInfoResponseDto.getData();
-                    // ReadBoardListResponseDto 빌더에 멤버 정보를 포함하여 객체 생성
-                    return ReadBoardListResponseDto.builder()
-                            .board(board)
-                            .memberInfoByMemberIdResponseDto(memberInfoByMemberIdResponseDto) // 멤버 정보 추가
-                            .build();
-                })
-                .collect(Collectors.toList());
+//        List<ReadBoardListResponseDto> dtoList = boards.stream()
+//                .map(board -> {
+//                    // 멤버 정보 가져오기
+//                    CommonResDto<MemberInfoByMemberIdResponseDto> memberInfoResponseDto = userServiceClient.getMemberInfoByMemberId(board.getMemberId());
+//                    MemberInfoByMemberIdResponseDto memberInfoByMemberIdResponseDto = memberInfoResponseDto.getData();
+//                    // ReadBoardListResponseDto 빌더에 멤버 정보를 포함하여 객체 생성
+//                    return ReadBoardListResponseDto.builder()
+//                            .board(board)
+//                            .memberInfoByMemberIdResponseDto(memberInfoByMemberIdResponseDto) // 멤버 정보 추가
+//                            .build();
+//                })
+//                .collect(Collectors.toList());
 
-
-        return new PageImpl<>(dtoList, pageable, boards.getSize());
+        return boards;
+//        return new PageImpl<>(dtoList, pageable, boards.getSize());
     }
 
     @Override
