@@ -47,7 +47,7 @@ public class NewsController {
     public ResponseEntity<CommonResDto<?>> readNewsList(NewsSearchCondition newsSearchCondition,
                                                         Pageable pageable){
 
-        newsService.readNewsList(newsSearchCondition, pageable)
+        Page<News> result = newsService.readNewsList(newsSearchCondition, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResDto<>(1,"뉴스 데이터 읽기 성공",result));
     }
 
