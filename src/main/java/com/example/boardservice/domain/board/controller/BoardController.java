@@ -47,7 +47,7 @@ public class BoardController {
     public ResponseEntity<CommonResDto<?>> boardList(BoardSearchCondition boardSearchCondition,
                                                      Pageable pageable){
 
-        Page<Board> result = boardService.readBoardList(pageable, boardSearchCondition);
+        Page<ReadBoardListResponseDto> result = boardService.readBoardList(pageable, boardSearchCondition);
         return ResponseEntity.status(HttpStatus.OK).body(new CommonResDto<>(1,"글 리스트 조회 성공",result));
     }
 

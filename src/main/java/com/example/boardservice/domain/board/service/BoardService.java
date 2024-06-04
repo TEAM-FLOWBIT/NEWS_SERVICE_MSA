@@ -13,7 +13,7 @@ import org.springframework.data.domain.Pageable;
 public interface BoardService {
     CreateBoardResponseDto createBoard(CreateBoardRequestDto createBoardResquestDto);
 
-    Page<Board>readBoardList(Pageable pageable, BoardSearchCondition boardSearchCondition);
+    Page<ReadBoardListResponseDto>readBoardList(Pageable pageable, BoardSearchCondition boardSearchCondition);
 
     void deleteBoard(Long boardId);
 
