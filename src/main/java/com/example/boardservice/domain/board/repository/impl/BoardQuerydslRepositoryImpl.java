@@ -53,10 +53,7 @@ public class BoardQuerydslRepositoryImpl extends Querydsl4RepositorySupport impl
                 .from(board)
                 .where(searchWordExpression(boardSearchCondition.getSearchword())
                         ,categoryExpression(boardSearchCondition.getCategory())
-                        ,boardTagExpression(boardSearchCondition.getBoardTag()))
-                .offset(pageable.getOffset())
-                .orderBy(getOrderSpecifier(pageable.getSort()).stream().toArray(OrderSpecifier[]::new))
-                .limit(pageable.getPageSize());
+                        ,boardTagExpression(boardSearchCondition.getBoardTag()));
 
 
         if (weekRange[0] != null && weekRange[1] != null) {
