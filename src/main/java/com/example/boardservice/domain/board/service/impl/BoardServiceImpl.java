@@ -100,7 +100,8 @@ public class BoardServiceImpl implements BoardService {
                             .build();
                 })
                 .collect(Collectors.toList());
-        return new PageImpl<>(dtoList, pageable, boards.getSize());
+
+        return new PageImpl<>(dtoList, pageable, boards.getTotalElements());
     }
 
     @Override
