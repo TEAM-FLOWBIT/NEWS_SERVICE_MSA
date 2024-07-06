@@ -28,10 +28,12 @@ public class ReadBoardListResponseDto {
     private Long boardCommentCount;
     private String boardCategory;
     private List<String> boardTags;
+    private boolean isBoardLike;
     private List<BoardListWithComment> comments=new ArrayList<>();
 
     @Builder
     public ReadBoardListResponseDto(Board board, MemberInfoByMemberIdResponseDto memberInfoByMemberIdResponseDto) {
+        this.isBoardLike=board.getBoardLikes().stream().anyMatch(boardLike -> boardLike.getMemberId().getId().equals(memberInfoByMemberIdResponseDto.getId()));
         this.memberEmail=memberInfoByMemberIdResponseDto.getEmail();
         this.memberId =memberInfoByMemberIdResponseDto.getId();
         this.nickname = memberInfoByMemberIdResponseDto.getNickname();

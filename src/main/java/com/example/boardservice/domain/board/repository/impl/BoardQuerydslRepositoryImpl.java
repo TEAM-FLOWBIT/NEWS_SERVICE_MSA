@@ -96,7 +96,7 @@ public class BoardQuerydslRepositoryImpl extends Querydsl4RepositorySupport impl
                 .from(board)
                 .where(board.createdAt.between(startOfWeek, endOfWeek));
 
-        return PageableExecutionUtils.getPage(query.fetch(), pageable, countQuery::fetchCount);
+        return PageableExecutionUtils.getPage(query.fetch(), pageable, countQuery::fetchOne);
     }
 
 
