@@ -92,15 +92,13 @@ public class BoardServiceImpl implements BoardService {
                 .map(board -> {
                     // 멤버 정보 가져오기
                     CommonResDto<MemberInfoByMemberIdResponseDto> memberInfoResponseDto = userServiceClient.getMemberInfoByMemberId(board.getMemberId());
-                    MemberInfoByMemberIdResponseDto memberInfoByMemberIdResponseDto = memberInfoResponseDto.getData();
-                    // ReadBoardListResponseDto 빌더에 멤버 정보를 포함하여 객체 생성
+                    MemberInfoByMemberIdResponseDto memberInfoByMemberIdResponseDto = memberInfoResponseDto.getData();// ReadBoardListResponseDto 빌더에 멤버 정보를 포함하여 객체 생성
                     return ReadBoardListResponseDto.builder()
                             .board(board)
-                            .memberInfoByMemberIdResponseDto(memberInfoByMemberIdResponseDto) // 멤버 정보 추가
+                            .memberInfoByMemberIdResponseDto(memberInfoByMemberIdResponseDto)
                             .build();
                 })
                 .collect(Collectors.toList());
-
         return new PageImpl<>(dtoList, boards.getPageable(), boards.getTotalElements());
     }
 

@@ -4,6 +4,7 @@ package com.example.boardservice.domain.board.dto.response;
 import com.example.boardservice.domain.board.entity.Board;
 import com.example.boardservice.domain.board.entity.BoardImage;
 import com.example.boardservice.global.client.dto.MemberInfoByMemberIdResponseDto;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -11,9 +12,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 @Getter
+@AllArgsConstructor
 public class ReadBoardListResponseDto {
+    private boolean isBoardLike;
     private Long memberId;
     private String memberEmail;
     private String nickname;
@@ -28,7 +30,6 @@ public class ReadBoardListResponseDto {
     private Long boardCommentCount;
     private String boardCategory;
     private List<String> boardTags;
-    private boolean isBoardLike;
     private List<BoardListWithComment> comments=new ArrayList<>();
 
     @Builder
@@ -49,5 +50,10 @@ public class ReadBoardListResponseDto {
         this.boardCategory=board.getBoardCategory().getLabel();
         this.boardTags=board.getBoardTags().stream().map(bt->bt.getTag().getWord()).collect(Collectors.toList());
         this.comments = board.getBoardComments().stream().map(boardComment -> new BoardListWithComment(boardComment,memberInfoByMemberIdResponseDto)).collect(Collectors.toList());
+    }
+
+    @JsonProperty("isBoardLike")
+    public boolean isBoardLike() {
+        return isBoardLike;
     }
 }
