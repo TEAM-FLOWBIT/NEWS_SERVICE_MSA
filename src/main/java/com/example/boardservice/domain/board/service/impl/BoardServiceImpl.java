@@ -20,14 +20,18 @@ import com.example.boardservice.global.client.dto.MemberInfoByMemberIdResponseDt
 import com.example.boardservice.global.client.dto.MemberInfoResponseDto;
 import com.example.boardservice.global.common.CommonResDto;
 import com.example.boardservice.global.tranlator.Translator;
+import com.example.boardservice.global.util.HtmlSanitizer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Safelist;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.HtmlUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -57,14 +61,18 @@ public class BoardServiceImpl implements BoardService {
         List<BoardTags> boardTag = new ArrayList<>();
 
 
-                Board board = createBoardRequestDto.toEntity(createBoardRequestDto, Translator.getMemberId(memberId));
+        String sanitizedContent = HtmlSanitizer.sanitizeHtml(createBoardRequestDto.getContent());
+        String unescapedContent = HtmlUtils.htmlUnescape(sanitizedContent);
+        unescapedContent = unescapedContent.replace("\n", "");
+        Board board = createBoardRequestDto.toEntity(createBoardRequestDto, Translator.getMemberId(memberId));
+        board.setContent(unescapedContent);
+
         Board savedBoard = boardRepository.save(board);
 
         // 태그 단어 저장
         if(createBoardRequestDto.getBoardTags() != null && !createBoardRequestDto.getBoardTags().isEmpty()){
             boardTag = boardTagService.createBoardTag(savedBoard, createBoardRequestDto.getBoardTags());
         }
-
 
         if (createBoardRequestDto.getPictures() != null && !createBoardRequestDto.getPictures().isEmpty()) {
             // image 저장
