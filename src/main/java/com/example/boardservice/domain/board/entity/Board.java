@@ -27,7 +27,7 @@
         private Long id;
         @Column(nullable = false, length = 100)
         private String title;
-        @Column(nullable = false, length = 1000)
+        @Column(nullable = false, columnDefinition = "TEXT")
         private String content;
 
         @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -135,6 +135,10 @@
         }
         public void minusBoardCommentCount(Long boardCommentCount) {
             this.boardCommentCount.minusBoardCommentCount(boardCommentCount);
+        }
+
+        public void setContent(String content) {
+            this.content = content;
         }
 
 

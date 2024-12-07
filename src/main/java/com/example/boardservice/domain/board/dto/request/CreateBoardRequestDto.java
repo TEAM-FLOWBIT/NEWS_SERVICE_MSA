@@ -28,6 +28,7 @@ public class CreateBoardRequestDto {
     List<MultipartFile> pictures;
     private String boardTags;
 
+
     public Board toEntity(CreateBoardRequestDto createBoardRequestDto, MemberId memberId) {
         return Board.builder()
                 .content(createBoardRequestDto.getContent())
